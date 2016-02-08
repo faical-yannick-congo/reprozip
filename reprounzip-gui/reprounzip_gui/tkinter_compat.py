@@ -15,8 +15,12 @@ Button = tk.Button
 Frame = tk.Frame
 Label = tk.Label
 LabelFrame = tk.LabelFrame
+OptionMenu = tk.OptionMenu
+Toplevel = tk.Toplevel
 
 Grid = tk.Grid
+
+StringVar = tk.StringVar
 
 N, S, W, E = tk.N, tk.S, tk.W, tk.E
 NONE, X, Y, BOTH = tk.NONE, tk.X, tk.Y, tk.BOTH
