@@ -1,7 +1,9 @@
 from __future__ import division, print_function, unicode_literals
 
-from reprounzip.utils import PY3
+import sys
 
+
+PY3 = sys.version_info[0] == 3
 
 if PY3:
     import tkinter as tk
