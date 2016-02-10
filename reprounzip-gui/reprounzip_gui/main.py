@@ -7,49 +7,49 @@ from reprounzip_gui import rpuz_interface
 from reprounzip_gui.rpuz_interface import ReprounzipError
 
 
-class MainWindow(object):
-    def __init__(self, root):
+class MainWindow(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent)
+
         self._pack_filename = None
 
-        self.window = root
-
         # Form to select paths
-        form = tk.Frame(self.window)
+        form = tk.Frame(self)
         tk.Grid.columnconfigure(form, 1, weight=1)
         tk.Label(form, text="Unpacked directory:") \
             .grid(row=0, column=0, sticky=tk.W)
         self._pack_button = tk.Button(form, text="(unselected)")
         self._pack_button.grid(row=0, column=1, sticky=tk.W + tk.E)
-        tk.Button(form, text="Unpack a .RPZ file...", command=self.unpack) \
+        tk.Button(form, text="Unpack a .RPZ file...", command=self._unpack) \
             .grid(row=1, column=0, columnspan=2, sticky=tk.E)
         form.pack(fill=tk.BOTH)
 
         # Spacer
-        tk.LabelFrame(self.window, border=0).pack(fill=tk.BOTH, expand=1)
+        tk.LabelFrame(self, border=0).pack(fill=tk.BOTH, expand=1)
 
-        tk.Label(self.window, text="[ files will be here ]").pack()
-
-        # Spacer
-        tk.LabelFrame(self.window, border=0).pack(fill=tk.BOTH, expand=1)
-
-        tk.Label(self.window, text="[ runs will be here ]").pack()
+        tk.Label(self, text="[ files will be here ]").pack()
 
         # Spacer
-        tk.LabelFrame(self.window, border=0).pack(fill=tk.BOTH, expand=1)
+        tk.LabelFrame(self, border=0).pack(fill=tk.BOTH, expand=1)
+
+        tk.Label(self, text="[ runs will be here ]").pack()
+
+        # Spacer
+        tk.LabelFrame(self, border=0).pack(fill=tk.BOTH, expand=1)
 
         # Buttons
-        buttons = tk.Frame(self.window)
+        buttons = tk.Frame(self)
 
-        unpack = tk.Button(buttons, text="Unpack", command=self.unpack)
+        unpack = tk.Button(buttons, text="Unpack", command=self._unpack)
         unpack.pack(side=tk.RIGHT)
 
-        destroy = tk.Button(buttons, text="Destroy", command=self.destroy)
+        destroy = tk.Button(buttons, text="Destroy", command=self._destroy)
         destroy.pack(side=tk.RIGHT)
 
         buttons.pack(side=tk.BOTTOM, fill=tk.X)
 
-    def unpack(self):
-        self._pack_filename = UnpackDialog.unpack(self.window)
+    def _unpack(self):
+        self._pack_filename = UnpackDialog.unpack(self)
         if self._pack_filename is not None:
             self._pack_button['text'] = self._pack_filename
             # TODO: Activate some buttons
@@ -57,53 +57,53 @@ class MainWindow(object):
             self._pack_button['text'] = "(unselected)"
             # TODO: Deactivate buttons
 
-    def destroy(self):
+    def _destroy(self):
         # TODO
         print("DESTROY")
 
 
-class UnpackDialog(object):
+class UnpackDialog(tk.Toplevel):
     def __init__(self, parent):
+        tk.Toplevel.__init__(self, parent)
+
         self.unpacked_path = None
         self._pack_filename = None
         self._destination_filename = None
 
-        self.window = tk.Toplevel()
-
         # Form to select paths
-        tk.Grid.columnconfigure(self.window, 1, weight=1)
-        tk.Label(self.window, text="File to unpack:") \
+        tk.Grid.columnconfigure(self, 1, weight=1)
+        tk.Label(self, text="File to unpack:") \
             .grid(row=0, column=0, sticky=tk.W)
-        self._pack_button = tk.Button(self.window, text="(unselected)",
+        self._pack_button = tk.Button(self, text="(unselected)",
                                       command=self._select_pack)
         self._pack_button.grid(row=0, column=1, sticky=tk.W + tk.E)
-        tk.Label(self.window, text="Unpacker to use:") \
+        tk.Label(self, text="Unpacker to use:") \
             .grid(row=1, column=0, sticky=tk.W)
-        self._unpacker = tk.StringVar(self.window)
+        self._unpacker = tk.StringVar(self)
         self._unpacker.set('directory')
-        tk.OptionMenu(self.window, self._unpacker,
+        tk.OptionMenu(self, self._unpacker,
                       'directory', 'chroot', 'docker', 'vagrant') \
             .grid(row=1, column=1, sticky=tk.E)
-        tk.Label(self.window, text="Destination directory:") \
+        tk.Label(self, text="Destination directory:") \
             .grid(row=2, column=0, sticky=tk.W)
-        self._destination_button = tk.Button(self.window, text="(unselected)",
+        self._destination_button = tk.Button(self, text="(unselected)",
                                              command=self._select_destination)
         self._destination_button.grid(row=2, column=1, sticky=tk.W + tk.E)
 
         # Spacer
-        tk.LabelFrame(self.window).grid(row=3)
-        tk.Grid.rowconfigure(self.window, 3, weight=1)
+        tk.LabelFrame(self).grid(row=3)
+        tk.Grid.rowconfigure(self, 3, weight=1)
 
         # Button
-        self._unpack_button = tk.Button(self.window, text="Unpack",
+        self._unpack_button = tk.Button(self, text="Unpack",
                                         state=tk.DISABLED,
                                         command=self._unpack)
         self._unpack_button.grid(row=3, column=0, columnspan=2, sticky=tk.E)
 
         # Run as modal dialog
-        self.window.transient(parent)
-        self.window.grab_set()
-        self.window.wait_window(self.window)
+        self.transient(parent)
+        self.grab_set()
+        self.wait_window(self)
 
     def _select_pack(self):
         self._pack_filename = tk.askopenfilename() or None
@@ -135,7 +135,7 @@ class UnpackDialog(object):
         except ReprounzipError as e:
             tk.showerror("Error while unpacking", e)
         else:
-            self.window.destroy()
+            self.destroy()
 
     @classmethod
     def unpack(cls, parent):
@@ -145,5 +145,5 @@ class UnpackDialog(object):
 
 def main():
     root = tk.Tk()
-    MainWindow(root)
+    MainWindow(root).pack(fill=tk.BOTH, expand=1)
     root.mainloop()
