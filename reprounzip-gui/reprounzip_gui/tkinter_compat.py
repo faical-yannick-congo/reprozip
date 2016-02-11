@@ -26,6 +26,7 @@ else:
 Tk = tk.Tk
 
 Button = tk.Button
+Entry = tk.Entry
 Frame = tk.Frame
 Label = tk.Label
 LabelFrame = tk.LabelFrame

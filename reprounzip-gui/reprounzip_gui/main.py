@@ -7,6 +7,24 @@ from reprounzip_gui import rpuz_interface
 from reprounzip_gui.rpuz_interface import ReprounzipError
 
 
+class IOFileWidget(tk.Frame):
+    def __init__(self, parent, name, path):
+        tk.Frame.__init__(self, parent)
+
+        ne = tk.Entry(self)
+        ne.insert(0, name)
+        ne.pack(side=tk.LEFT, fill=tk.X, expand=1)
+        ne['state'] = tk.DISABLED
+        pe = tk.Entry(self, foreground='black', background='white')
+        pe.insert(0, path)
+        pe.pack(side=tk.LEFT, fill=tk.X, expand=1)
+        pe['state'] = tk.DISABLED
+        pe['foreground'] = 'black'
+        pe['background'] = 'white'
+        tk.Button(self, text="Reset").pack(side=tk.LEFT)
+        tk.Button(self, text="Upload").pack(side=tk.LEFT)
+
+
 class MainWindow(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
@@ -27,7 +45,10 @@ class MainWindow(tk.Frame):
         # Spacer
         tk.LabelFrame(self, border=0).pack(fill=tk.BOTH, expand=1)
 
-        tk.Label(self, text="[ files will be here ]").pack()
+        self._files_widget = tk.Frame(self)
+        IOFileWidget(self._files_widget, "name", "path") \
+            .pack(fill=tk.X, expand=1)
+        self._files_widget.pack(fill=tk.BOTH, expand=1)
 
         # Spacer
         tk.LabelFrame(self, border=0).pack(fill=tk.BOTH, expand=1)
