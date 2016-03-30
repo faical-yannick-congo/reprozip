@@ -70,6 +70,11 @@ class PkgManager(object):
                 else:
                     self.unknown_files.add(f)
 
+        # Filter out packages with no files
+        self.packages = {pkgname: pkg
+                         for pkgname, pkg in iteritems(self.packages)
+                         if pkg.files}
+
     def _filter(self, f):
         # Special files
         if any(f.path.lies_under(c) for c in magic_dirs):
