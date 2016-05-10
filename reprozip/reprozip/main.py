@@ -368,7 +368,3 @@ def main():
     else:
         submit_usage_report(result='success')
     sys.exit(0)
-
-
-if __name__ == '__main__':
-    main()
