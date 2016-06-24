@@ -41,6 +41,8 @@ from reprounzip.utils import unicode_, iteritems, stderr, download_file
 def select_box(runs):
     """Selects a box for the experiment, with the correct distribution.
     """
+    return ('debian', 'remram/debian-8-amd64-xfce')
+
     distribution, version = runs[0]['distribution']
     distribution = distribution.lower()
     architecture = runs[0]['architecture']
@@ -352,11 +354,16 @@ mkdir -p /experimentroot/bin
             # Run the setup script on the virtual machine
             fp.write('  config.vm.provision "shell", path: "setup.sh"\n')
 
+            gui = True
+
             # Memory size
-            if memory is not None:
-                fp.write('  config.vm.provider "virtualbox" do |v|\n'
-                         '    v.memory = %d\n'
-                         '  end\n' % memory)
+            if memory is not None or gui:
+                fp.write('  config.vm.provider "virtualbox" do |v|\n')
+                if memory is not None:
+                    fp.write('    v.memory = %d\n' % memory)
+                if gui:
+                    fp.write('    v.gui = true\n')
+                fp.write('  end\n')
 
             fp.write('end\n')
 
