@@ -163,6 +163,18 @@ def machine_setup(target, use_chroot):
         if chan.recv_exit_status() != 0:
             logging.critical("Couldn't mount directories in chroot")
             sys.exit(1)
+        # Mount X11 socket
+        chan = ssh.get_transport().open_session()
+        chan.exec_command(
+            '/usr/bin/sudo /bin/sh -c %s' % shell_escape(
+                'if [ -d /tmp/.X11-unix ]; then '
+                '[ -d /experimentroot/tmp/.X11-unix ] || '
+                'mkdir /experimentroot/tmp/.X11-unix; '
+                'mount -o bind /tmp/.X11-unix /experimentroot/tmp/.X11-unix; '
+                'fi'))
+        if chan.recv_exit_status() != 0:
+            logging.critical("Couldn't mount X11 sockets in chroot")
+            sys.exit(1)
         ssh.close()
 
     return info
