@@ -30,6 +30,10 @@ import reprozip.pack
 import reprozip.tracer.trace
 import reprozip.traceutils
 from reprozip.utils import PY3, unicode_, stderr
+import httplib2
+import json
+import requests
+import os
 
 
 def shell_escape(s):
@@ -208,6 +212,7 @@ def trace(args):
 
     Simply calls reprozip.tracer.trace() with the arguments from argparse.
     """
+    # print(args.project)
     if args.arg0 is not None:
         argv = [args.arg0] + args.cmdline[1:]
     else:
@@ -221,7 +226,93 @@ def trace(args):
                                               args.identify_packages,
                                               args.find_inputs_outputs,
                                               overwrite=False)
+    os.remove("bundle.rpz")
+    args.target = 'bundle.rpz'
+    pack(args)
+    link_to_corr(api=args.api, project_name=args.project)
 
+def link_to_corr(api=None, project_name=None):
+    token = "48a81007a6bda75b2543d4a0bc97e6ea6665c0e1f16237ad492f00f15a32198c"
+    client = httplib2.Http('.cache', disable_ssl_certificate_validation=True)
+    server_url = "{0}/{1}/".format(api, token)
+    url = "%sprojects" % (server_url)
+    project = None
+    print(url)
+    response, content = http_get(client, url)
+    if response.status == 200:
+        json_content = json.loads(content)['content']
+        exist = False
+        if json_content['total_projects'] > 0:
+            for _project in json_content['projects']:
+                if _project['name'] == project_name:
+                    exist = True
+                    project = _project
+                    break
+        if not exist:
+            response, content = put_project(client, server_url, project_name)
+            project = json.loads(content)['content']
+
+        push_record(client, server_url, project)
+    else:
+        print(content)
+
+def http_get(client, url):
+    headers = {'Accept': 'application/json'}
+    response, content = client.request(url, headers=headers)
+    return response, content
+
+def put_project(client, url, project_name, long_name='No goals provided.', description='No description provided.'):
+        url = "%sproject/create" % (url)
+        content = {'name':project_name, 'goals':long_name, 'description':description}
+        headers = {'Content-Type': 'application/json'}
+        response, content = client.request(url, 'POST', json.dumps(content), headers=headers)
+        return response, content
+
+def push_record(client, server_url, project):
+        record_id = None
+        
+        url = "%sproject/record/create/%s" % (server_url, project['id'])
+        headers = {'Content-Type': 'application/json'}
+        _content = {}
+        _content['label'] = 'no label provided'
+        _content['tags'] = []
+        _content['system'] = {}
+        _content['inputs'] = []
+        _content['outputs'] = []
+        _content['dependencies'] = []
+        _content['execution'] = {}
+        _content['status'] = 'finished'
+        _content['timestamp'] = 'not captured'
+        _content['reason'] = 'no reason provided'
+        _content['duration'] ='not captured'
+        _content['executable'] = {}
+        _content['repository'] = {}
+        _content['main_file'] = ''
+        _content['version'] = 'not captured'
+        _content['parameters'] = {}
+        _content['script_arguments'] = 'not captured'
+        _content['datastore'] = {}
+        _content['input_datastore'] = {}
+        _content['outcome'] = 'no outcome provided'
+        _content['stdout_stderr'] = 'not captured'
+        _content['diff'] = 'not captured'
+        _content['user'] = 'not captured'
+        response, content = client.request(url, 'POST', json.dumps(_content), headers=headers)
+
+        if response.status == 200:
+            record = json.loads(content)['content']
+            record_id = record['head']['id']
+            # print(record)
+            response = upload_file(server_url, record_id, 'bundle.rpz', 'resource-record')
+            # print(response)
+        else:
+            print(content)
+
+def upload_file(server_url, record_id, file_path, group):
+    url = "%sfile/upload/%s/%s" % (server_url, group, record_id)
+    files = {'file':open(file_path)}
+    response = requests.post(url, files=files)
+    return response
 
 def reset(args):
     """reset subcommand.
@@ -342,6 +433,12 @@ def main():
         '-a',
         dest='arg0',
         help="argument 0 to program, if different from program path")
+    parser_trace.add_argument(
+        '-api',
+        dest='api',
+        help="CoRR Backend API endpoint.")
+    parser_trace.add_argument(
+        'project', help="the project name")
     parser_trace.add_argument(
         '-c', '--continue', action='store_true', dest='append',
         help="add to the previous run instead of replacing it")

@@ -40,6 +40,7 @@ req = [
     'PyYAML',
     'rpaths>=0.8',
     'usagestats>=0.3',
+    'httplib2',
     'requests']
 setup(name='reprozip',
       version='1.1.0',
