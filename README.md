@@ -29,16 +29,16 @@ Originally to trace a project with Reprozip, one would do:
 
     $ reprozip trace MyProject cmd_to_run
 
-To Use Reprozip with your CoRR account. Retrieve your access token in your home page account and do:
+To Use Reprozip with your CoRR account. Retrieve your config file in your home page account and do:
 
-    $ reprozip trace -api=http://localhost:5100/corr/api/v0.1/private/b6b458cecd92bf0f6308645d783d2a14f55e4d30c248482bbc6b82637de5c410 MyProject cmd_to_run
+    $ reprozip trace -config=path_to_config MyProject cmd_to_run
     
 You will need the api domain and port. This is accessible through your account by downloading the 
 config file. We are working to make this init part be able to load the config file.
 
 For example, in my local development CoRR instance i have setup this way:
 
-    reprozip trace -api=http://localhost:5100/corr/api/v0.1/private/b6b458cecd92bf0f6308645d783d2a14f55e4d30c248482bbc6b82637de5c410 reprozip-python python main.py default.param
+    reprozip trace -config=/home/fyc/config.json reprozip-python python main.py default.param
 
 ## Developers & Users
 
@@ -46,16 +46,15 @@ This Reprozip code is currently in development mode and is registered in a local
 It will soon be linked to an official CoRR instance and be added as an application that users registered
 could use to push their Reprozip records.
 
-After standing an instance of CoRR, to allow users to use this version of Reprozip, please contact me
-(Faical Yannick P. Congo) or look into reprozip/reprozip/main.py and search for:
+After standing an instance of CoRR, to allow users to use your version of Reprozip or any tools, you
+must create your application instance in CoRR and provide the access token to the users.You will find
+it on the applications dashboard.
 
-    token = "48a81007a6bda75b2543d4a0bc97e6ea6665c0e1f16237ad492f00f15a32198c"
+Inform the users to place the token in the app key of the config file downloadable from their home account
+view.
 
-Replace the token by the newly created application token of Reprozip produced by your CoRR instance and
-provide this code to your user.
-
-We are working to make many instances of CoRR interoperable with the same Reprozip code. So contacting me
-would be the most sustainable effort.
+The aim here is to minimize many instances of the same app running. So before creating records from an app
+that you provide, please ensure that this app is not provisionned already by querying its name.
 
 ## Note
 
