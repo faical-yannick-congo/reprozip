@@ -235,7 +235,6 @@ def trace(args):
     link_to_corr(config_path=args.config, project_name=args.project)
 
 def link_to_corr(config_path=None, project_name=None):
-    token = "48a81007a6bda75b2543d4a0bc97e6ea6665c0e1f16237ad492f00f15a32198c"
     if config_path:
         config = {}
         with open(config_path, 'r') as config_file:
