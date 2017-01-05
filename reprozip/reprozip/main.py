@@ -226,35 +226,51 @@ def trace(args):
                                               args.identify_packages,
                                               args.find_inputs_outputs,
                                               overwrite=False)
-    os.remove("bundle.rpz")
+
+    if os.path.exists("bundle.rpz"):
+        os.remove("bundle.rpz")
+
     args.target = 'bundle.rpz'
     pack(args)
-    link_to_corr(api=args.api, project_name=args.project)
+    link_to_corr(config_path=args.config, project_name=args.project)
 
-def link_to_corr(api=None, project_name=None):
+def link_to_corr(config_path=None, project_name=None):
     token = "48a81007a6bda75b2543d4a0bc97e6ea6665c0e1f16237ad492f00f15a32198c"
-    client = httplib2.Http('.cache', disable_ssl_certificate_validation=True)
-    server_url = "{0}/{1}/".format(api, token)
-    url = "%sprojects" % (server_url)
-    project = None
-    print(url)
-    response, content = http_get(client, url)
-    if response.status == 200:
-        json_content = json.loads(content)['content']
-        exist = False
-        if json_content['total_projects'] > 0:
-            for _project in json_content['projects']:
-                if _project['name'] == project_name:
-                    exist = True
-                    project = _project
-                    break
-        if not exist:
-            response, content = put_project(client, server_url, project_name)
-            project = json.loads(content)['content']
+    if config_path:
+        config = {}
+        with open(config_path, 'r') as config_file:
+            config = json.loads(config_file.read())
 
-        push_record(client, server_url, project)
+        scope = config.get('default', {})
+        api = scope.get('api',{})
+        host = api.get('host','')
+        port = api.get('port', 80)
+        key = api.get('key', '')
+        path = api.get('path', '')
+        client = httplib2.Http('.cache', disable_ssl_certificate_validation=True)
+        server_url = "{0}:{1}{2}/private/{3}/{4}/".format(host, port, path, key, token)
+        url = "%sprojects" % (server_url)
+        project = None
+        print(url)
+        response, content = http_get(client, url)
+        if response.status == 200:
+            json_content = json.loads(content)['content']
+            exist = False
+            if json_content['total_projects'] > 0:
+                for _project in json_content['projects']:
+                    if _project['name'] == project_name:
+                        exist = True
+                        project = _project
+                        break
+            if not exist:
+                response, content = put_project(client, server_url, project_name)
+                project = json.loads(content)['content']
+
+            push_record(client, server_url, project)
+        else:
+            print(content)
     else:
-        print(content)
+        print("Config file not provided.")
 
 def http_get(client, url):
     headers = {'Accept': 'application/json'}
@@ -311,7 +327,7 @@ def push_record(client, server_url, project):
 def upload_file(server_url, record_id, file_path, group):
     url = "%sfile/upload/%s/%s" % (server_url, group, record_id)
     files = {'file':open(file_path)}
-    response = requests.post(url, files=files)
+    response = requests.post(url, files=files, verify=False)
     return response
 
 def reset(args):
@@ -434,9 +450,9 @@ def main():
         dest='arg0',
         help="argument 0 to program, if different from program path")
     parser_trace.add_argument(
-        '-api',
-        dest='api',
-        help="CoRR Backend API endpoint.")
+        '-config',
+        dest='config',
+        help="CoRR Backend config file.")
     parser_trace.add_argument(
         'project', help="the project name")
     parser_trace.add_argument(
