@@ -247,6 +247,7 @@ def link_to_corr(config_path=None, project_name=None):
         port = api.get('port', 80)
         key = api.get('key', '')
         path = api.get('path', '')
+        token = scope.get('app', '')
         client = httplib2.Http('.cache', disable_ssl_certificate_validation=True)
         server_url = "{0}:{1}{2}/private/{3}/{4}/".format(host, port, path, key, token)
         url = "%sprojects" % (server_url)
