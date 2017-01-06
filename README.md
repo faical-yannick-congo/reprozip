@@ -23,18 +23,38 @@ This small tutorial on how to get started with this integrated version of reproz
 [CoRR examples](https://github.com/usnistgov/corr-examples). Please download it and install the requirements
 for the project you want to run it for. Let's assume you are using: project-corr-python.
 
-	$ cd project-corr-python
+    $ cd project-corr-python
 
 To Use Reprozip with your CoRR account. Retrieve your config file in your home page account and do:
 
     $ reprozip trace -config=path_to_config MyProject cmd_to_run
     
-You will need the api domain and port. This is accessible through your account by downloading the 
-config file. We are working to make this init part be able to load the config file.
+You will need an application toke. To have one, you can either create an app instance in your dashboard or
+use the token of a pre-existing app accessible through query. In your config file place the token in the value
+of the key: app. Your config file should look like the following:
+
+```
+{
+    "default": {
+        "api": {
+            "host": "https://localhost",
+            "key": "7b37a3ff1184cb4f5ae04b3b175cfb6a63d2c6843ed051ccebfa87d8b35df4f4",
+            "path": "/corr/api/v0.1",
+            "port": 5100
+        },
+        "app": "b6edbb796704956a78cc91a4a83e46b689f578f0ee1785170b097de68747bf0a"
+    }
+}
+```
+In this case the app token is: b6edbb796704956a78cc91a4a83e46b689f578f0ee1785170b097de68747bf0a.
+Your account access api key is: 7b37a3ff1184cb4f5ae04b3b175cfb6a63d2c6843ed051ccebfa87d8b35df4f4.
 
 For example, in my local development CoRR instance i have setup this way:
 
-    reprozip trace -config=/home/fyc/config.json reprozip-python python main.py default.param
+    $ reprozip trace -config=/home/fyc/config.json reprozip-python python main.py default.param
+
+By running reprozip trace you allow the tool to identify itself as the instance app token provided
+and push content to your account space.
 
 ## Developers & Users
 
