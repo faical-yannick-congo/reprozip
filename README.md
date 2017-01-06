@@ -22,12 +22,11 @@ To use this integrated version of Reprozip to CoRR, place yourself in the base o
 
     $ python setup.py install
 
-## Additional Usage Requirement
+This small tutorial on how to get started with this integrated version of reprozip of CoRR requires the
+[CoRR examples](https://github.com/usnistgov/corr-examples). Please download it and install the requirements
+for the project you want to run it for. Let's assume you are using: project-corr-python.
 
-The integration of this requirement to CoRR yielded some extra steps in using the original code.
-Originally to trace a project with Reprozip, one would do:
-
-    $ reprozip trace MyProject cmd_to_run
+	$ cd project-corr-python
 
 To Use Reprozip with your CoRR account. Retrieve your config file in your home page account and do:
 
