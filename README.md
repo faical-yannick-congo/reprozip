@@ -15,7 +15,7 @@ The current repository is a fork of the Reprozip Code with the integration capab
 
 ## Installing this version
 
-To use this integrated version of Reprozip to CoRR, place yourself in the base of this repository and run:
+To use this integrated version of Reprozip to CoRR, place yourself in the reprozip folder in the repository and run:
 
     $ python setup.py install
 
