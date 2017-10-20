@@ -374,6 +374,8 @@ def main():
         dest='config',
         help="CoRR Backend config file.")
     parser_trace.add_argument(
+        'project', help="the project name")
+    parser_trace.add_argument(
         '-c', '--continue', action='store_true', dest='append',
         help="add to the previous trace, don't replace it")
     parser_trace.add_argument(
