@@ -40,7 +40,8 @@ req = [
     'PyYAML',
     'rpaths>=0.8',
     'usagestats>=0.3',
-    'requests']
+    'requests',
+    'httplib2']
 setup(name='reprozip',
       version='1.1.0',
       ext_modules=[pytracer],
