@@ -32,7 +32,7 @@ def push_to_corr(config_path=None, project_name=None, base="."):
                         break
             if not exist:
                 response, content = put_project(client, server_url, project_name)
-                project = json.loads(content.decode('utf-8'))['content']
+                project = json.loads(content)['content']
 
             push_record(client, server_url, project)
         else:
@@ -92,15 +92,15 @@ def push_record(client, server_url, project, base):
         _content['diff'] = 'not captured'
         _content['user'] = config_yaml['architecture']['hostname']
         response, content = client.request(url, 'POST', json.dumps(_content), headers=headers)
-
+        content = content.decode('utf-8')
         if response.status == 200:
-            record = json.loads(content.decode('utf-8'))['content']
+            record = json.loads(content)['content']
             record_id = record['head']['id']
             # print(record)
             response = upload_file(server_url, record_id, 'bundle.rpz', 'resource-record')
             # print(response)
         else:
-            print(content.decode('utf-8'))
+            print(content)
 
 def upload_file(server_url, record_id, file_path, group):
     url = "%sfile/upload/%s/%s" % (server_url, group, record_id)
