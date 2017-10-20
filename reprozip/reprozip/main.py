@@ -248,7 +248,7 @@ def trace(args):
 
         args.target = 'corr-bundle.rpz'
         pack(args)
-        corrapi.push_to_corr(config_path=args.config, project_name=args.project, base=Path(args.dir))
+        corrapi.push_to_corr(config_path=args.config, project_name=args.name, base=Path(args.dir))
 
 def reset(args):
     """reset subcommand.
@@ -374,7 +374,9 @@ def main():
         dest='config',
         help="CoRR Backend config file.")
     parser_trace.add_argument(
-        'project', help="the project name")
+        '-name',
+        dest='name',
+        help="CoRR Backend project name.")
     parser_trace.add_argument(
         '-c', '--continue', action='store_true', dest='append',
         help="add to the previous trace, don't replace it")
