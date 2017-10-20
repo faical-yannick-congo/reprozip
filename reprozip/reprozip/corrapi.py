@@ -1,4 +1,5 @@
-def push_to_corr(config_path=None, project_name=None):
+import yaml
+def push_to_corr(config_path=None, project_name=None, base="."):
     if config_path:
         config = {}
         with open(config_path, 'r') as config_file:
@@ -48,27 +49,37 @@ def put_project(client, url, project_name, long_name='No goals provided.', descr
         response, content = client.request(url, 'POST', json.dumps(content), headers=headers)
         return response, content
 
-def push_record(client, server_url, project):
+def rpz_conf_to_corr(base):
+    stream = open(base / 'config.yml', "r")
+    config_yaml = yaml.load_all(stream)
+    return config_yaml
+
+def push_record(client, server_url, project, base):
         record_id = None
-        
+        config_yaml = rpz_conf_to_corr(base)
         url = "%sproject/record/create/%s" % (server_url, project['id'])
         headers = {'Content-Type': 'application/json'}
         _content = {}
         _content['label'] = 'no label provided'
         _content['tags'] = []
-        _content['system'] = {}
+        _content['system'] = config_yaml['architecture']
         _content['inputs'] = []
         _content['outputs'] = []
-        _content['dependencies'] = []
-        _content['execution'] = {}
+        for iofile in config_yaml['inputs_outputs']:
+            if iofile['written_by_runs'] == [0]:
+                _content['outputs'].append(iofile)
+            elif iofile['read_by_runs'] == [0]:
+                _content['inputs'].append(iofile)
+        _content['dependencies'] = config_yaml['packages']
+        _content['execution'] = {'binary':config_yaml['architecture']['binary'], 'argv':config_yaml['architecture']['argv']}
         _content['status'] = 'finished'
         _content['timestamp'] = 'not captured'
         _content['reason'] = 'no reason provided'
         _content['duration'] ='not captured'
-        _content['executable'] = {}
+        _content['executable'] = {'path':config_yaml['architecture']['binary']}
         _content['repository'] = {}
         _content['main_file'] = ''
-        _content['version'] = 'not captured'
+        _content['version'] = config_yaml['version']
         _content['parameters'] = {}
         _content['script_arguments'] = 'not captured'
         _content['datastore'] = {}
@@ -76,7 +87,7 @@ def push_record(client, server_url, project):
         _content['outcome'] = 'no outcome provided'
         _content['stdout_stderr'] = 'not captured'
         _content['diff'] = 'not captured'
-        _content['user'] = 'not captured'
+        _content['user'] = config_yaml['architecture']['hostname']
         response, content = client.request(url, 'POST', json.dumps(_content), headers=headers)
 
         if response.status == 200:
