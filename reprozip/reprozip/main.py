@@ -370,6 +370,10 @@ def main():
         dest='arg0',
         help="argument 0 to program, if different from program path")
     parser_trace.add_argument(
+        '-config',
+        dest='config',
+        help="CoRR Backend config file.")
+    parser_trace.add_argument(
         '-c', '--continue', action='store_true', dest='append',
         help="add to the previous trace, don't replace it")
     parser_trace.add_argument(
