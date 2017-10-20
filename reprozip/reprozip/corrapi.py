@@ -2,7 +2,7 @@ import yaml
 import json
 import httplib2
 
-def push_to_corr(config_path=None, project_name=None, base="."):
+def push_to_corr(config_path=None, project_name=None):
     if config_path:
         config = {}
         with open(config_path, 'r') as config_file:
@@ -52,14 +52,14 @@ def put_project(client, url, project_name, long_name='No goals provided.', descr
         response, content = client.request(url, 'POST', json.dumps(content), headers=headers)
         return response, content.decode('utf-8')
 
-def rpz_conf_to_corr(base):
-    stream = open(base / 'config.yml', "r")
+def rpz_conf_to_corr():
+    stream = open('.reprozip-trace/config.yml', "r")
     config_yaml = yaml.load_all(stream)
     return config_yaml
 
-def push_record(client, server_url, project, base):
+def push_record(client, server_url, project):
         record_id = None
-        config_yaml = rpz_conf_to_corr(base)
+        config_yaml = rpz_conf_to_corr()
         url = "%sproject/record/create/%s" % (server_url, project['id'])
         headers = {'Content-Type': 'application/json'}
         _content = {}

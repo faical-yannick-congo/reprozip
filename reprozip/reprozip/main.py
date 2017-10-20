@@ -248,7 +248,7 @@ def trace(args):
 
         args.target = 'corr-bundle.rpz'
         pack(args)
-        corrapi.push_to_corr(config_path=args.config, project_name=args.name, base=Path(args.dir))
+        corrapi.push_to_corr(config_path=args.config, project_name=args.name)
 
 def reset(args):
     """reset subcommand.
