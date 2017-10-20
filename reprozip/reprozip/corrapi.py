@@ -1,6 +1,7 @@
 import yaml
 import json
 import httplib2
+import requests
 
 def push_to_corr(config_path=None, project_name=None):
     if config_path:
@@ -19,7 +20,6 @@ def push_to_corr(config_path=None, project_name=None):
         server_url = "{0}:{1}{2}/private/{3}/{4}/".format(host, port, path, key, token)
         url = "%sprojects" % (server_url)
         project = None
-        print(url)
         response, content = http_get(client, url)
         if response.status == 200:
             json_content = json.loads(content)['content']
@@ -60,7 +60,6 @@ def rpz_conf_to_corr():
 def push_record(client, server_url, project):
         record_id = None
         config_yaml = rpz_conf_to_corr()
-        print(config_yaml)
         url = "%sproject/record/create/%s" % (server_url, project['id'])
         headers = {'Content-Type': 'application/json'}
         _content = {}
@@ -70,9 +69,9 @@ def push_record(client, server_url, project):
         _content['inputs'] = []
         _content['outputs'] = []
         for iofile in config_yaml['inputs_outputs']:
-            if iofile['written_by_runs'][-1] == len(config_yaml['runs'])-1:
+            if len(iofile['written_by_runs']) > 0 and iofile['written_by_runs'][-1] == len(config_yaml['runs'])-1:
                 _content['outputs'].append(iofile)
-            elif iofile['read_by_runs'][-1] == len(config_yaml['runs'])-1:
+            if len(iofile['read_by_runs']) > 0 and iofile['read_by_runs'][-1] == len(config_yaml['runs'])-1:
                 _content['inputs'].append(iofile)
         _content['dependencies'] = config_yaml['packages']
         _content['execution'] = {'binary':config_yaml['runs'][-1]['binary'], 'argv':config_yaml['runs'][-1]['argv']}
@@ -98,13 +97,13 @@ def push_record(client, server_url, project):
             record = json.loads(content)['content']
             record_id = record['head']['id']
             # print(record)
-            response = upload_file(server_url, record_id, 'bundle.rpz', 'resource-record')
+            response = upload_file(server_url, record_id, 'corr-bundle.rpz', 'resource-record')
             # print(response)
         else:
             print(content)
 
 def upload_file(server_url, record_id, file_path, group):
     url = "%sfile/upload/%s/%s" % (server_url, group, record_id)
-    files = {'file':open(file_path)}
-    response = requests.post(url, files=files, verify=False)
+    files = {'file':open(file_path, "rb")}
+    response = requests.post(url, files=files, verify=True)
     return response
