@@ -15,7 +15,7 @@ def push_to_corr(config_path=None, project_name=None, base="."):
         key = api.get('key', '')
         path = api.get('path', '')
         token = scope.get('app', '')
-        client = httplib2.Http('.cache', disable_ssl_certificate_validation=True)
+        client = httplib2.Http('.cache', disable_ssl_certificate_validation=False)
         server_url = "{0}:{1}{2}/private/{3}/{4}/".format(host, port, path, key, token)
         url = "%sprojects" % (server_url)
         project = None
@@ -32,7 +32,7 @@ def push_to_corr(config_path=None, project_name=None, base="."):
                         break
             if not exist:
                 response, content = put_project(client, server_url, project_name)
-                project = json.loads(content)['content']
+                project = json.loads(content.decode('utf-8'))['content']
 
             push_record(client, server_url, project)
         else:
@@ -43,14 +43,14 @@ def push_to_corr(config_path=None, project_name=None, base="."):
 def http_get(client, url):
     headers = {'Accept': 'application/json'}
     response, content = client.request(url, headers=headers)
-    return response, content
+    return response, content.decode('utf-8')
 
 def put_project(client, url, project_name, long_name='No goals provided.', description='No description provided.'):
         url = "%sproject/create" % (url)
         content = {'name':project_name, 'goals':long_name, 'description':description}
         headers = {'Content-Type': 'application/json'}
         response, content = client.request(url, 'POST', json.dumps(content), headers=headers)
-        return response, content
+        return response, content.decode('utf-8')
 
 def rpz_conf_to_corr(base):
     stream = open(base / 'config.yml', "r")
@@ -94,13 +94,13 @@ def push_record(client, server_url, project, base):
         response, content = client.request(url, 'POST', json.dumps(_content), headers=headers)
 
         if response.status == 200:
-            record = json.loads(content)['content']
+            record = json.loads(content.decode('utf-8'))['content']
             record_id = record['head']['id']
             # print(record)
             response = upload_file(server_url, record_id, 'bundle.rpz', 'resource-record')
             # print(response)
         else:
-            print(content)
+            print(content.decode('utf-8'))
 
 def upload_file(server_url, record_id, file_path, group):
     url = "%sfile/upload/%s/%s" % (server_url, group, record_id)
