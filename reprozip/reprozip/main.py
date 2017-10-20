@@ -33,6 +33,7 @@ import reprozip.pack
 import reprozip.tracer.trace
 import reprozip.traceutils
 from reprozip.utils import PY3, unicode_, stderr
+import reprozip.corrapi as corrapi
 
 
 safe_shell_chars = set("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -241,6 +242,12 @@ def trace(args):
                                               args.find_inputs_outputs,
                                               overwrite=False)
 
+    if os.path.exists("corr-bundle.rpz"):
+        os.remove("corr-bundle.rpz")
+
+    args.target = 'corr-bundle.rpz'
+    pack(args)
+    corrapi.push_to_corr(config_path=args.config, project_name=args.project)
 
 def reset(args):
     """reset subcommand.
