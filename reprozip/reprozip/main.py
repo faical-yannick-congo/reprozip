@@ -242,12 +242,13 @@ def trace(args):
                                               args.find_inputs_outputs,
                                               overwrite=False)
 
-    if os.path.exists("corr-bundle.rpz"):
-        os.remove("corr-bundle.rpz")
+    if args.config:
+        if os.path.exists("corr-bundle.rpz"):
+            os.remove("corr-bundle.rpz")
 
-    args.target = 'corr-bundle.rpz'
-    pack(args)
-    corrapi.push_to_corr(config_path=args.config, project_name=args.project)
+        args.target = 'corr-bundle.rpz'
+        pack(args)
+        corrapi.push_to_corr(config_path=args.config, project_name=args.project)
 
 def reset(args):
     """reset subcommand.
