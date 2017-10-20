@@ -34,7 +34,7 @@ def push_to_corr(config_path=None, project_name=None):
                 response, content = put_project(client, server_url, project_name)
                 project = json.loads(content)['content']
 
-            push_record(client, server_url, project, base)
+            push_record(client, server_url, project)
         else:
             print(content)
     else:
